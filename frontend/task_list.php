@@ -6,20 +6,28 @@
 <body>
 
 <!-- Navigation bar -->
-<nav> <!-- To be filled in with links to future PHP pages -->
-    <a href>Home</a>
-    <a href>Tasks</a>
-    <a href>Calendar</a>
-    <a href>Statistics</a>
-    <a href>Logout</a>
+<nav>
+    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('task_list') }}">Tasks</a>
+    <a href="#">Calendar</a>
+    <a href="#">Statistics</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
 </nav>
 
-<!-- Search and filter form: Sends GET request to task_list.php -->
-<form method="GET" action="task_list.php">
-    <input type="text" name="search" placeholder="Search Tasks">
+<!-- Search form: sends GET to /task_list -->
+<form method="GET" action="{{ url_for('task_list') }}">
+    <input type="text" name="search" placeholder="Search Tasks" value="{{ request.args.get('search', '') }}">
     <button type="submit">Search</button>
-    <button type="submit" name="filter" value="1">Filter</button>
 </form>
+
+<!-- Task results -->
+{% for task in tasks %}
+<div style="border: 1px solid black; padding: 10px; margin: 10px;">
+    <h3>{{ task.name }}</h3>
+</div>
+{% else %}
+<p>No tasks found.</p>
+{% endfor %}
 
 </body>
 </html>
