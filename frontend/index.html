@@ -6,92 +6,66 @@
   <title>TaskFusion</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f0f4f8;
-    }
-    .container-wrapper {
-      max-width: 90vw;
-      margin-left: auto;
-      margin-right: auto;
-      padding: 2.5rem;
-    }
-    @media (min-width: 640px) {
-      .container-wrapper {
-        max-width: 600px;
-        padding: 2.5rem;
-      }
-    }
-    @media (min-width: 768px) {
-      .container-wrapper {
-        max-width: 768px;
-        padding: 3rem;
-      }
-    }
-    @media (min-width: 1024px) {
-      .container-wrapper {
-        max-width: 1024px;
-        padding: 3.5rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="frontend/styles.css">
 </head>
 <body class="bg-purple-100 flex flex-col items-center min-h-screen p-4">
+<nav class="navbar">
+  <div class="navbar-container">
+    <a href="index.html" class="navbar-logo">TaskFusion</a>
+    <button class="navbar-toggle" id="mobile-menu">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+    <ul class="navbar-menu">
+      <li><a href="/home">Home</a></li>
+      <li><a href="/tasks">Tasks</a></li>
+      <li><a href="/calendar">Calendar</a></li>
+      <li class="navbar-account">
+        <a href="#">Account &#9662;</a>
+        <ul class="dropdown">
+          <li><a href="/login">Login</a></li>
+          <li><a href="/signup">Sign Up</a></li>
+          <li><a href="/logout">Logout</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
+
 <div class="container-wrapper w-full bg-white shadow-lg rounded-xl p-6 sm:p-8 md:p-10 mb-8">
-
   <header class="w-full mb-12">
-
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
-
-      <div class="text-center sm:text-left mb-4 sm:mb-0">
-        <p class="text-xl sm:text-2xl italic text-gray-700">
-          <i>"Believe you can and you're halfway there."</i>
-        </p>
-        <p class="text-sm text-gray-500 mt-2">— Theodore Roosevelt</p>
-      </div>
-
-
-      <nav class="flex space-x-2 sm:space-x-4">
-        <a href="#" class="px-4 py-2 sm:px-6 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition duration-300 ease-in-out font-semibold text-sm sm:text-base flex items-center justify-center">
-          View Daily Tasks
-        </a>
-        <a href="#" class="px-4 py-2 sm:px-6 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition duration-300 ease-in-out font-semibold text-sm sm:text-base flex items-center justify-center">
-          View Weekly Tasks
-        </a>
-        <a href="#" class="px-4 py-2 sm:px-6 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition duration-300 ease-in-out font-semibold text-sm sm:text-base flex items-center justify-center">
-          View Monthly Tasks
-        </a>
-      </nav>
-    </div>
-
-
-    <h1 class="text-4xl sm:text-5xl font-bold text-center mb-6 bg-gradient-to-r from-purple-600 via-purple-500 to-purple-400 text-transparent bg-clip-text">TaskFusion</h1>
-
-
-    <div class="flex justify-center mb-8">
-      <a href="#" class="px-6 py-3 border-2 border-green-600 text-green-600 rounded-md hover:bg-green-600 hover:text-white transition duration-300 ease-in-out font-semibold text-sm sm:text-base">
-        Add New Task!
-      </a>
-    </div>
+    <h1 class="text-3xl font-bold text-center mb-2 quote-purple">Welcome to TaskFusion</h1>
+    <div id="quote-container" class="max-w-4xl mx-auto bg-purple-200 text-center py-4 mb-6 rounded-lg shadow quote-purple"></div>
   </header>
-
-
-  <section class="w-full">
-    <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-4 text-center">Our website allows you to add tasks, view your tasks in a daily, weekly or monthly view.</h2>
-    
+  <div>
     <!-- Ignore this image, it was just what I used from google images, we can put a real calendar later!!! -->
     <img src="https://wiki.k2btools.com/k2btools/apgetwikiimage?22540,1" alt="A short description of the image">
 
-
-    <h2 class="text-gray-800 mb-4 text-center">Why TaskFusion?</h2>
-    <div class="flex flex-wrap justify-center"> TaskFusion increases productivity and user satisfaction. Handling everyday tasks in our busy lives has never been easier. </div>
-  </section>
+    <h2 class="mb-4 text-center quote-purple">Why TaskFusion?</h2>
+    <div class="flex flex-wrap justify-center quote-purple">
+      TaskFusion increases productivity and user satisfaction. Handling everyday tasks in our busy lives has never been easier.
+    </div>
+    <footer class="mt-auto p-4 text-center text-gray-500 text-sm">
+      &copy; BCS490 Senior Project Team Purple
+    </footer>
+  </div>
 </div>
 
-
-<footer class="mt-auto p-4 text-center text-gray-500 text-sm">
-  &copy; BCS490 Senior Project Team Purple
-</footer>
+<script>
+  async function fetchQuote() {
+    try {
+      const res = await fetch('https://thequoteshub.com/api/');
+      const data = await res.json();
+      const quote = data.quote || data.text || "No quote found";
+      const author = data.author || "Unknown";
+      document.getElementById('quote-container').innerHTML =
+        `<span class="text-lg italic quote-purple">"${quote}"</span><br><span class="text-sm font-semibold quote-purple">- ${author}</span>`;
+    } catch (e) {
+      document.getElementById('quote-container').textContent = 'Could not load quote.';
+    }
+  }
+  fetchQuote();
+</script>
 </body>
 </html>
