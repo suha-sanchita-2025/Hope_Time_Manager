@@ -37,7 +37,7 @@ def signup():
         email = request.form['email']
         password = generate_password_hash(request.form['password'])
         if User.query.filter_by(email=email).first():
-            return 'User already exists', 400
+            return render_template('signup.html', error='User already exists')
         user = User(email=email, password=password)
         db.session.add(user)
         db.session.commit()
@@ -82,6 +82,10 @@ def add_task():
     db.session.add(new_task)
     db.session.commit()
     return jsonify({"message": "Task added successfully!"}), 201
+
+# In your app.py or routes.py
+from flask import render_template, request, redirect, url_for, flash
+
 
 if __name__ == '__main__':
     app.run(debug=True)
