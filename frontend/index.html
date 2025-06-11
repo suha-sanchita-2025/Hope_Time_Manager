@@ -54,18 +54,18 @@
 
 <script>
   async function fetchQuote() {
-    try {
-      const res = await fetch('https://thequoteshub.com/api/');
-      const data = await res.json();
-      const quote = data.quote || data.text || "No quote found";
-      const author = data.author || "Unknown";
-      document.getElementById('quote-container').innerHTML =
-        `<span class="text-lg italic quote-purple">"${quote}"</span><br><span class="text-sm font-semibold quote-purple">- ${author}</span>`;
-    } catch (e) {
-      document.getElementById('quote-container').textContent = 'Could not load quote.';
+      try {
+        const res = await fetch('https://thequoteshub.com/api/');
+        const data = await res.json();
+        const quote = data.quote || data.text || "No quote found";
+        const author = data.author || "Unknown";
+        document.getElementById('quote-container').innerHTML =
+          `<span class="text-lg italic">"${quote}"</span><br><span class="text-sm font-semibold">- ${author}</span>`;
+      } catch (e) {
+        document.getElementById('quote-container').textContent = 'Could not load quote.';
+      }
     }
-  }
-  fetchQuote();
+    fetchQuote();
 </script>
 </body>
 </html>
