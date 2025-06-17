@@ -1,10 +1,9 @@
-
-from flask import Flask, request, jsonify, send_from_directory, render_template, redirect, url_for, session
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__, static_folder='frontend')
+app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
@@ -27,10 +26,9 @@ with app.app_context():
     db.create_all()
 
 @app.route('/')
-def serve_index():
-    return send_from_directory('frontend', 'index.html')
+def index():
+    return render_template('index.html')
 
-# User registration
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -44,7 +42,6 @@ def signup():
         return redirect(url_for('login'))
     return render_template('signup.html')
 
-# User login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -55,13 +52,13 @@ def login():
             session['user'] = email
             return redirect(url_for('home'))
         else:
-            return 'Invalid credentials', 401
+            return render_template('login.html', error='Invalid credentials')
     return render_template('login.html')
 
 @app.route('/home')
 def home():
     if 'user' in session:
-        return send_from_directory('frontend', 'index.html')
+        return render_template('index.html')
     return redirect(url_for('login'))
 
 @app.route('/logout')
@@ -69,23 +66,18 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('login'))
 
-# Task API
-@app.route('/api/tasks', methods=['GET'])
+@app.route('/task_list', methods=['GET'])
 def get_tasks():
     tasks = Task.query.all()
     return jsonify([{"id": task.id, "name": task.name} for task in tasks])
 
-@app.route('/api/tasks', methods=['POST'])
+@app.route('/task_list', methods=['POST'])
 def add_task():
     data = request.json
     new_task = Task(name=data['name'])
     db.session.add(new_task)
     db.session.commit()
     return jsonify({"message": "Task added successfully!"}), 201
-
-# In your app.py or routes.py
-from flask import render_template, request, redirect, url_for, flash
-
 
 if __name__ == '__main__':
     app.run(debug=True)
