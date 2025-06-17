@@ -70,7 +70,7 @@ def logout():
     return redirect(url_for('login'))
 
 # Task API
-@app.route('/taask_list', methods=['GET'])
+@app.route('/task_list', methods=['GET'])
 def get_tasks():
     tasks = Task.query.all()
     return jsonify([{"id": task.id, "name": task.name} for task in tasks])
