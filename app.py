@@ -4,6 +4,9 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
+
+ALLOWED_CATEGORIES = ['school', 'work', 'personal']
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -93,6 +96,8 @@ def get_tasks():
 @app.route('/task_list', methods=['POST'])
 def add_task():
     data = request.json
+    if data['category'] not in ALLOWED_CATEGORIES:
+        return jsonify({'error': 'Invalid category'}), 400
     due_date = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
     new_task = Task(
         name=data['name'],
@@ -105,7 +110,6 @@ def add_task():
     db.session.commit()
     return jsonify({"message": "Task added successfully!"}), 201
 
-# Get a single task by ID
 @app.route('/task_list/<int:id>', methods=['GET'])
 def get_task(id):
     task = Task.query.get(id)
@@ -120,7 +124,6 @@ def get_task(id):
         "completed": task.completed
     })
 
-# Delete a task by ID
 @app.route('/task_list/<int:id>', methods=['DELETE'])
 def delete_task(id):
     task = Task.query.get(id)
@@ -130,16 +133,15 @@ def delete_task(id):
     db.session.commit()
     return jsonify({'message': 'Task deleted successfully!'})
 
-# Edit (update) a task by ID
 @app.route('/task_list/<int:id>', methods=['PUT'])
 def update_task(id):
     task = Task.query.get(id)
     if not task:
         return jsonify({'error': 'Task not found'}), 404
     data = request.json
-    print(data)  # Debug: print incoming JSON data
     task.name = data.get('name', task.name)
-    task.category = data.get('category', task.category)
+    if 'category' in data and data['category'] in ALLOWED_CATEGORIES:
+        task.category = data['category']
     task.priority = data.get('priority', task.priority)
     if 'due_date' in data:
         task.due_date = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
