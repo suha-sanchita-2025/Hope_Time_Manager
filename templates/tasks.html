@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Tasks - TaskFusion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-purple-100 p-4">
+<a href="{{ url_for('index') }}"
+   class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 font-semibold mb-4 inline-block">
+    Home
+</a>
+<div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-6">
+    <div class="flex justify-between items-center mb-4">
+        <input id="search" type="text" placeholder="Search tasks..." class="border p-2 rounded w-2/3">
+        <select id="sort" class="border p-2 rounded">
+            <option value="">Sort by Category</option>
+            <option value="school">School</option>
+            <option value="work">Work</option>
+            <option value="personal">Personal</option>
+        </select>
+        <button id="addTaskBtn" class="bg-purple-500 text-white px-4 py-2 rounded">Add Task</button>
+    </div>
+    <table class="w-full text-left">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Priority</th>
+            <th>Due Date</th>
+            <th>Completed</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="taskList">
+        <!-- Tasks will be rendered here by JS -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal for adding/editing a task -->
+<div id="modal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-lg font-bold mb-4" id="modalTitle">Add Task</h2>
+        <form id="taskForm" class="space-y-3">
+            <input type="text" name="name" placeholder="Task Name" required class="w-full border p-2 rounded">
+            <input type="text" name="category" placeholder="Category" required class="w-full border p-2 rounded">
+            <input type="text" name="priority" placeholder="Priority" required class="w-full border p-2 rounded">
+            <input type="date" name="due_date" required class="w-full border p-2 rounded">
+            <label class="flex items-center">
+                <input type="checkbox" name="completed" class="mr-2"> Completed
+            </label>
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="closeModal" class="px-4 py-2 rounded bg-gray-300">Cancel</button>
+                <button type="submit" class="px-4 py-2 rounded bg-purple-500 text-white" id="submitBtn">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Modal logic
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    let editingTaskId = null;
+
+    document.getElementById('addTaskBtn').onclick = () => {
+        modalTitle.textContent = 'Add Task';
+        submitBtn.textContent = 'Add';
+        editingTaskId = null;
+        document.getElementById('taskForm').reset();
+        modal.classList.remove('hidden');
+    };
+    document.getElementById('closeModal').onclick = () => { modal.classList.add('hidden'); };
+
+    // Fetch and render tasks
+    function fetchTasks() {
+      fetch('/task_list')
+        .then(res => res.json())
+        .then(tasks => {
+          const tbody = document.getElementById('taskList');
+          tbody.innerHTML = '';
+          tasks.forEach(task => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${task.name}</td>
+              <td>${task.category}</td>
+              <td>${task.priority}</td>
+              <td>${task.due_date}</td>
+              <td><input type="checkbox" disabled ${task.completed ? 'checked' : ''}></td>
+              <td>
+                <button onclick="editTask(${task.id})" class="text-blue-500 hover:underline">Edit</button>
+                <button onclick="deleteTask(${task.id})" class="text-red-500 hover:underline ml-2">Delete</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+    fetchTasks();
+
+    // Add or edit task
+    document.getElementById('taskForm').onsubmit = function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const method = editingTaskId ? 'PUT' : 'POST';
+      const url = editingTaskId ? `/task_list/${editingTaskId}` : '/task_list';
+      fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name.value,
+          category: form.category.value,
+          priority: form.priority.value,
+          due_date: form.due_date.value,
+          completed: form.completed.checked
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        modal.classList.add('hidden');
+        form.reset();
+        editingTaskId = null;
+        fetchTasks();
+        alert(data.message);
+      });
+    };
+
+    // Edit task
+    window.editTask = function(id) {
+      fetch(`/task_list/${id}`)
+        .then(res => res.json())
+        .then(task => {
+          const form = document.getElementById('taskForm');
+          form.name.value = task.name;
+          form.category.value = task.category;
+          form.priority.value = task.priority;
+          form.due_date.value = task.due_date;
+          form.completed.checked = task.completed;
+          modalTitle.textContent = 'Edit Task';
+          submitBtn.textContent = 'Update';
+          editingTaskId = id;
+          modal.classList.remove('hidden');
+        });
+    };
+
+    // Delete task
+    window.deleteTask = function(id) {
+      if (confirm('Delete this task?')) {
+        fetch(`/task_list/${id}`, { method: 'DELETE' })
+          .then(res => res.json())
+          .then(() => fetchTasks());
+      }
+    };
+</script>
+</body>
+</html>
