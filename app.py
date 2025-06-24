@@ -4,7 +4,6 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-
 ALLOWED_CATEGORIES = ['school', 'work', 'personal']
 
 app = Flask(__name__)
@@ -18,8 +17,10 @@ db = SQLAlchemy(app)
 # User model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    tasks = db.relationship('Task', backref='user', lazy=True)
 
 # Task model
 class Task(db.Model):
@@ -29,12 +30,15 @@ class Task(db.Model):
     priority = db.Column(db.String(10), nullable=False)
     due_date = db.Column(db.Date, nullable=False)
     completed = db.Column(db.Boolean, default=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 with app.app_context():
     db.create_all()
 
 @app.route('/tasks')
 def tasks():
+    if 'user' not in session:
+        return redirect(url_for('login'))
     return render_template('tasks.html')
 
 @app.route('/')
@@ -44,11 +48,13 @@ def index():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
+        username = request.form['username']
         email = request.form['email']
-        password = generate_password_hash(request.form['password'])
+        password = request.form['password']
         if User.query.filter_by(email=email).first():
-            return render_template('signup.html', error='User already exists')
-        user = User(email=email, password=password)
+            return render_template('signup.html', error='Email already registered')
+        hashed_password = generate_password_hash(password)
+        user = User(username=username, email=email, password=hashed_password)
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('login'))
@@ -62,6 +68,7 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
             session['user'] = email
+            session['user_id'] = user.id
             return redirect(url_for('home'))
         else:
             return render_template('login.html', error='Invalid credentials')
@@ -76,11 +83,14 @@ def home():
 @app.route('/logout')
 def logout():
     session.pop('user', None)
+    session.pop('user_id', None)
     return redirect(url_for('login'))
 
 @app.route('/task_list', methods=['GET'])
 def get_tasks():
-    tasks = Task.query.all()
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    tasks = Task.query.filter_by(user_id=session['user_id']).all()
     return jsonify([
         {
             "id": task.id,
@@ -95,6 +105,8 @@ def get_tasks():
 
 @app.route('/task_list', methods=['POST'])
 def add_task():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
     data = request.json
     if data['category'] not in ALLOWED_CATEGORIES:
         return jsonify({'error': 'Invalid category'}), 400
@@ -104,7 +116,8 @@ def add_task():
         category=data['category'],
         priority=data['priority'],
         due_date=due_date,
-        completed=data.get('completed', False)
+        completed=data.get('completed', False),
+        user_id=session['user_id']
     )
     db.session.add(new_task)
     db.session.commit()
@@ -112,7 +125,9 @@ def add_task():
 
 @app.route('/task_list/<int:id>', methods=['GET'])
 def get_task(id):
-    task = Task.query.get(id)
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    task = Task.query.filter_by(id=id, user_id=session['user_id']).first()
     if not task:
         return jsonify({'error': 'Task not found'}), 404
     return jsonify({
@@ -126,7 +141,9 @@ def get_task(id):
 
 @app.route('/task_list/<int:id>', methods=['DELETE'])
 def delete_task(id):
-    task = Task.query.get(id)
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    task = Task.query.filter_by(id=id, user_id=session['user_id']).first()
     if not task:
         return jsonify({'error': 'Task not found'}), 404
     db.session.delete(task)
@@ -135,7 +152,9 @@ def delete_task(id):
 
 @app.route('/task_list/<int:id>', methods=['PUT'])
 def update_task(id):
-    task = Task.query.get(id)
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    task = Task.query.filter_by(id=id, user_id=session['user_id']).first()
     if not task:
         return jsonify({'error': 'Task not found'}), 404
     data = request.json
