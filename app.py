@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -13,6 +14,16 @@ app.secret_key = 'your_secret_key'
 
 CORS(app)
 db = SQLAlchemy(app)
+
+#API endpoint to fetch a random quote
+@app.route('/api/quote')
+def get_quote():
+    try:
+        response = requests.get("https://zenquotes.io/api/random")
+        data = response.json()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": "Could not fetch quote"}), 500
 
 # User model
 class User(db.Model):
