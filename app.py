@@ -101,7 +101,11 @@ def logout():
 def get_tasks():
     if 'user_id' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
-    tasks = Task.query.filter_by(user_id=session['user_id']).all()
+    search = request.args.get('search', '').strip()
+    query = Task.query.filter_by(user_id=session['user_id'])
+    if search:
+        query = query.filter(Task.name.ilike(f'%{search}%'))
+    tasks = query.all()
     return jsonify([
         {
             "id": task.id,
