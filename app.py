@@ -5,7 +5,9 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
+
 ALLOWED_CATEGORIES = ['school', 'work', 'personal']
+ALLOWED_PRIORITIES = ['low', 'medium', 'high']
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
@@ -15,7 +17,7 @@ app.secret_key = 'your_secret_key'
 CORS(app)
 db = SQLAlchemy(app)
 
-#API endpoint to fetch a random quote
+# API endpoint to fetch a random quote
 @app.route('/api/quote')
 def get_quote():
     try:
@@ -125,6 +127,8 @@ def add_task():
     data = request.json
     if data['category'] not in ALLOWED_CATEGORIES:
         return jsonify({'error': 'Invalid category'}), 400
+    if data['priority'] not in ALLOWED_PRIORITIES:
+        return jsonify({'error': 'Invalid priority'}), 400
     due_date = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
     new_task = Task(
         name=data['name'],
@@ -176,7 +180,10 @@ def update_task(id):
     task.name = data.get('name', task.name)
     if 'category' in data and data['category'] in ALLOWED_CATEGORIES:
         task.category = data['category']
-    task.priority = data.get('priority', task.priority)
+    if 'priority' in data:
+        if data['priority'] not in ALLOWED_PRIORITIES:
+            return jsonify({'error': 'Invalid priority'}), 400
+        task.priority = data['priority']
     if 'due_date' in data:
         task.due_date = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
     task.completed = data.get('completed', task.completed)
