@@ -54,18 +54,20 @@
 
 <script>
   async function fetchQuote() {
-      try {
-        const res = await fetch('https://thequoteshub.com/api/');
-        const data = await res.json();
-        const quote = data.quote || data.text || "No quote found";
-        const author = data.author || "Unknown";
-        document.getElementById('quote-container').innerHTML =
-          `<span class="text-lg italic">"${quote}"</span><br><span class="text-sm font-semibold">- ${author}</span>`;
-      } catch (e) {
-        document.getElementById('quote-container').textContent = 'Could not load quote.';
-      }
+    try {
+      const res = await fetch('/api/quote'); // Now hitting your Flask route
+      const data = await res.json();
+      const quote = data[0].q || "No quote found";
+      const author = data[0].a || "Unknown";
+      document.getElementById('quote-container').innerHTML =
+        `"${quote}"<br>— ${author}`;
+    } catch (e) {
+      console.error(e);
+      document.getElementById('quote-container').textContent = 'Could not load quote.';
     }
-    fetchQuote();
+  }
+
+  fetchQuote();
 </script>
 </body>
 </html>

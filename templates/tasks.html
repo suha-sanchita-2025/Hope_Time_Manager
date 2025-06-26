@@ -58,100 +58,131 @@
 </div>
 
 <script>
-    // Modal logic
-    const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modalTitle');
-    const submitBtn = document.getElementById('submitBtn');
-    let editingTaskId = null;
+    // Search
+    document.getElementById('search').addEventListener('input', function() {
+        const query = this.value;
+        fetch(`/task_list?search=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(tasks => {
+                renderTasks(tasks);
+            });
+    });
 
-    document.getElementById('addTaskBtn').onclick = () => {
-        modalTitle.textContent = 'Add Task';
-        submitBtn.textContent = 'Add';
-        editingTaskId = null;
-        document.getElementById('taskForm').reset();
-        modal.classList.remove('hidden');
-    };
-    document.getElementById('closeModal').onclick = () => { modal.classList.add('hidden'); };
-
-    // Fetch and render tasks
-    function fetchTasks() {
-      fetch('/task_list')
-        .then(res => res.json())
-        .then(tasks => {
-          const tbody = document.getElementById('taskList');
-          tbody.innerHTML = '';
-          tasks.forEach(task => {
+    // Render tasks as table rows
+    function renderTasks(tasks) {
+        const tbody = document.getElementById('taskList');
+        tbody.innerHTML = '';
+        tasks.forEach(task => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td>${task.name}</td>
-              <td>${task.category}</td>
-              <td>${task.priority}</td>
-              <td>${task.due_date}</td>
-              <td><input type="checkbox" disabled ${task.completed ? 'checked' : ''}></td>
-              <td>
-                <button onclick="editTask(${task.id})" class="text-blue-500 hover:underline">Edit</button>
-                <button onclick="deleteTask(${task.id})" class="text-red-500 hover:underline ml-2">Delete</button>
-              </td>
+                <td>${task.name}</td>
+                <td>${task.category}</td>
+                <td>${task.priority}</td>
+                <td>${task.due_date}</td>
+                <td><input type="checkbox" disabled ${task.completed ? 'checked' : ''}></td>
+                <td>
+                    <button onclick="editTask(${task.id})" class="text-blue-500 hover:underline">Edit</button>
+                    <button onclick="deleteTask(${task.id})" class="text-red-500 hover:underline ml-2">Delete</button>
+                </td>
             `;
             tbody.appendChild(tr);
-          });
         });
     }
-    fetchTasks();
 
-    // Add or edit task
-    document.getElementById('taskForm').onsubmit = function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const method = editingTaskId ? 'PUT' : 'POST';
-      const url = editingTaskId ? `/task_list/${editingTaskId}` : '/task_list';
-      fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name.value,
-          category: form.category.value,
-          priority: form.priority.value,
-          due_date: form.due_date.value,
-          completed: form.completed.checked
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        modal.classList.add('hidden');
-        form.reset();
-        editingTaskId = null;
+        // Modal logic
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        let editingTaskId = null;
+
+        document.getElementById('addTaskBtn').onclick = () => {
+            modalTitle.textContent = 'Add Task';
+            submitBtn.textContent = 'Add';
+            editingTaskId = null;
+            document.getElementById('taskForm').reset();
+            modal.classList.remove('hidden');
+        };
+        document.getElementById('closeModal').onclick = () => { modal.classList.add('hidden'); };
+
+        // Fetch and render tasks
+        function fetchTasks() {
+          fetch('/task_list')
+            .then(res => res.json())
+            .then(tasks => {
+              const tbody = document.getElementById('taskList');
+              tbody.innerHTML = '';
+              tasks.forEach(task => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td>${task.name}</td>
+                  <td>${task.category}</td>
+                  <td>${task.priority}</td>
+                  <td>${task.due_date}</td>
+                  <td><input type="checkbox" disabled ${task.completed ? 'checked' : ''}></td>
+                  <td>
+                    <button onclick="editTask(${task.id})" class="text-blue-500 hover:underline">Edit</button>
+                    <button onclick="deleteTask(${task.id})" class="text-red-500 hover:underline ml-2">Delete</button>
+                  </td>
+                `;
+                tbody.appendChild(tr);
+              });
+            });
+        }
         fetchTasks();
-        alert(data.message);
-      });
-    };
 
-    // Edit task
-    window.editTask = function(id) {
-      fetch(`/task_list/${id}`)
-        .then(res => res.json())
-        .then(task => {
-          const form = document.getElementById('taskForm');
-          form.name.value = task.name;
-          form.category.value = task.category;
-          form.priority.value = task.priority;
-          form.due_date.value = task.due_date;
-          form.completed.checked = task.completed;
-          modalTitle.textContent = 'Edit Task';
-          submitBtn.textContent = 'Update';
-          editingTaskId = id;
-          modal.classList.remove('hidden');
-        });
-    };
-
-    // Delete task
-    window.deleteTask = function(id) {
-      if (confirm('Delete this task?')) {
-        fetch(`/task_list/${id}`, { method: 'DELETE' })
+        // Add or edit task
+        document.getElementById('taskForm').onsubmit = function(e) {
+          e.preventDefault();
+          const form = e.target;
+          const method = editingTaskId ? 'PUT' : 'POST';
+          const url = editingTaskId ? `/task_list/${editingTaskId}` : '/task_list';
+          fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: form.name.value,
+              category: form.category.value,
+              priority: form.priority.value,
+              due_date: form.due_date.value,
+              completed: form.completed.checked
+            })
+          })
           .then(res => res.json())
-          .then(() => fetchTasks());
-      }
-    };
+          .then(data => {
+            modal.classList.add('hidden');
+            form.reset();
+            editingTaskId = null;
+            fetchTasks();
+            alert(data.message);
+          });
+        };
+
+        // Edit task
+        window.editTask = function(id) {
+          fetch(`/task_list/${id}`)
+            .then(res => res.json())
+            .then(task => {
+              const form = document.getElementById('taskForm');
+              form.name.value = task.name;
+              form.category.value = task.category;
+              form.priority.value = task.priority;
+              form.due_date.value = task.due_date;
+              form.completed.checked = task.completed;
+              modalTitle.textContent = 'Edit Task';
+              submitBtn.textContent = 'Update';
+              editingTaskId = id;
+              modal.classList.remove('hidden');
+            });
+        };
+
+        // Delete task
+        window.deleteTask = function(id) {
+          if (confirm('Delete this task?')) {
+            fetch(`/task_list/${id}`, { method: 'DELETE' })
+              .then(res => res.json())
+              .then(() => fetchTasks());
+          }
+        };
 </script>
 </body>
 </html>
