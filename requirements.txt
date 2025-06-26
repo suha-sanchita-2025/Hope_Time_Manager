@@ -3,3 +3,5 @@ Flask-SQLAlchemy
 Flask-Cors
 Werkzeug
 requests
+gunicorn
+
