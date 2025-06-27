@@ -200,5 +200,28 @@ def update_task(id):
     db.session.commit()
     return jsonify({'message': 'Task updated successfully!'})
 
+@app.route('/calendar')
+def calendar():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('calendar.html')
+
+@app.route('/api/user_tasks')
+def user_tasks():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    tasks = Task.query.filter_by(user_id=session['user_id']).all()
+    return jsonify([
+        {
+            "id": task.id,
+            "name": task.name,
+            "category": task.category,
+            "priority": task.priority,
+            "due_date": task.due_date.strftime('%Y-%m-%d'),
+            "completed": task.completed
+        }
+        for task in tasks
+    ])
+
 if __name__ == '__main__':
     app.run(debug=True)
