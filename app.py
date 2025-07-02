@@ -200,28 +200,52 @@ def update_task(id):
     db.session.commit()
     return jsonify({'message': 'Task updated successfully!'})
 
+
+
 @app.route('/calendar')
 def calendar():
-    if 'user_id' not in session:
+    if 'user' not in session:
         return redirect(url_for('login'))
     return render_template('calendar.html')
 
-@app.route('/api/user_tasks')
+
+@app.route('/api/user_tasks', methods=['GET'])
 def user_tasks():
     if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
+        return jsonify([])  # or return jsonify({'error': 'Unauthorized'}), 401
     tasks = Task.query.filter_by(user_id=session['user_id']).all()
     return jsonify([
         {
-            "id": task.id,
-            "name": task.name,
-            "category": task.category,
-            "priority": task.priority,
-            "due_date": task.due_date.strftime('%Y-%m-%d'),
-            "completed": task.completed
-        }
-        for task in tasks
+            'id': t.id,
+            'name': t.name,
+            'category': t.category,
+            'priority': t.priority,
+            'due_date': t.due_date.strftime('%Y-%m-%d'),
+            'completed': t.completed
+        } for t in tasks
     ])
+
+#Mark all tasks as completed
+@app.route('/task_list/complete_all', methods=['POST'])
+def complete_all_tasks():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    Task.query.filter_by(user_id=session['user_id'], completed=False).update({'completed': True})
+    db.session.commit()
+    return jsonify({'message': 'All tasks marked as completed!'})
+
+# Delete all completed tasks
+@app.route('/task_list/delete_completed', methods=['DELETE'])
+def delete_completed_tasks():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    Task.query.filter_by(user_id=session['user_id'], completed=True).delete()
+    db.session.commit()
+    return jsonify({'message': 'All completed tasks deleted!'})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+

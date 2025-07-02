@@ -26,6 +26,16 @@
         </select>
         <button id="addTaskBtn" class="bg-purple-500 text-white px-4 py-2 rounded ml-2">Add Task</button>
     </div>
+
+    <!-- Task Tools Dropdown -->
+    <div class="relative inline-block mb-4">
+      <button id="taskToolsBtn" class="btn bg-gray-200 px-4 py-2 rounded">Task Tools ▼</button>
+      <div id="taskToolsMenu" class="hidden absolute bg-white border rounded shadow z-10">
+        <button onclick="markAllCompleted()" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Mark All as Completed</button>
+        <button onclick="deleteAllCompleted()" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Delete All Completed Tasks</button>
+      </div>
+    </div>
+
     <table class="w-full text-left">
         <thead>
         <tr>
@@ -72,6 +82,23 @@
 </div>
 
 <script>
+   // Task Tools Dropdown logic
+   document.getElementById('taskToolsBtn').onclick = function() {
+     document.getElementById('taskToolsMenu').classList.toggle('hidden');
+   };
+
+    function markAllCompleted() {
+      fetch('/task_list/complete_all', {method: 'POST'})
+        .then(res => res.json())
+        .then(() => { fetchTasksWithFilters(); });
+    }
+
+    function deleteAllCompleted() {
+      fetch('/task_list/delete_completed', {method: 'DELETE'})
+        .then(res => res.json())
+        .then(() => { fetchTasksWithFilters(); });
+    }
+
     // Listen for changes on filters and search
     document.getElementById('search').addEventListener('input', fetchTasksWithFilters);
     document.getElementById('categoryFilter').addEventListener('change', fetchTasksWithFilters);
