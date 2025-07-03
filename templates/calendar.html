@@ -48,28 +48,36 @@
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const calendarEl = document.getElementById('calendar');
-        const today = new Date().toISOString().split('T')[0];
-
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            height: 500,
-            events: [
-                {
-                    title: 'Test Event',
-                    start: today,
-                    color: 'green'
-                },
-                {
-                    title: 'Overdue Task',
-                    start: '2024-01-01',
-                    color: 'red'
-                }
-            ]
-        });
-
-        calendar.render();
-    });
+      const calendarEl = document.getElementById('calendar');
+      fetch('/api/user_tasks')
+          .then(response => response.json())
+          .then(tasks => {
+              const today = new Date().toISOString().split('T')[0];
+              const events = tasks.map(task => {
+                  let color;
+                  if (!task.completed && task.due_date < today) {
+                      color = 'red';
+                  } else if (task.category === 'work') {
+                      color = 'green';
+                  } else if (task.category === 'school') {
+                      color = 'blue';
+                  } else if (task.category === 'personal') {
+                      color = 'purple';
+                  }
+                  return {
+                      title: task.name,
+                      start: task.due_date,
+                      color: color
+                  };
+              });
+              const calendar = new FullCalendar.Calendar(calendarEl, {
+                  initialView: 'dayGridMonth',
+                  height: 500,
+                  events: events
+              });
+              calendar.render();
+          });
+  });
 </script>
 </body>
 </html>
