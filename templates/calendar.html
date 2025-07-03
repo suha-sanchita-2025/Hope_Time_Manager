@@ -1,41 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
-</head>
-<body>
-    <div id='calendar'></div>
+    <meta charset="UTF-8">
+    <title>Calendar - TaskFusion</title>
+
+    <!-- Early dark mode check -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('/api/user_tasks')
-                .then(response => response.json())
-                .then(tasks => {
-                    const categoryColors = {
-                        school: 'blue',
-                        work: 'green',
-                        personal: 'purple'
-                    };
-                    const today = new Date().toISOString().split('T')[0];
-                    const events = tasks.map(task => {
-                        let color = categoryColors[task.category] || 'gray';
-                        if (task.due_date < today && !task.completed) {
-                            color = 'red';
-                        }
-                        return {
-                            title: task.name,
-                            start: task.due_date,
-                            color: color
-                        };
-                    });
-                    var calendarEl = document.getElementById('calendar');
-                    var calendar = new FullCalendar.Calendar(calendarEl, {
-                        initialView: 'dayGridMonth',
-                        events: events
-                    });
-                    calendar.render();
-                });
-        });
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
     </script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        };
+    </script>
+
+    <!-- FullCalendar CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #calendar {
+            flex: 1;
+        }
+    </style>
+</head>
+<body class="flex flex-col bg-purple-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+<!-- Header -->
+<div class="flex justify-between items-center p-4 shadow-md bg-white dark:bg-gray-800">
+    <a href="{{ url_for('index') }}"
+       class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 font-semibold dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
+        Home
+    </a>
+    <button id="darkToggle"
+            class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
+        Toggle Dark Mode
+    </button>
+</div>
+
+<!-- Calendar -->
+<div id="calendar" class="p-4 bg-white dark:bg-gray-800 grow"></div>
+
+<!-- Toggle functionality -->
+<script>
+    document.getElementById('darkToggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        const isDark = document.documentElement.classList.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+</script>
+
+<!-- Calendar functionality -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar');
+        const today = new Date().toISOString().split('T')[0];
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            height: '100%',
+            expandRows: true,
+            events: [
+                {
+                    title: 'Test Event',
+                    start: today,
+                    color: 'green'
+                },
+                {
+                    title: 'Overdue Task',
+                    start: '2024-01-01',
+                    color: 'red'
+                }
+            ]
+        });
+
+        calendar.render();
+    });
+</script>
 </body>
 </html>
