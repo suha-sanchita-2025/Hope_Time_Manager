@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>TaskFusion - Statistics</title>
     <link rel="stylesheet" href="../static/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <nav class="navbar">
@@ -28,10 +29,36 @@
                         <li><a href="/logout">Logout</a></li>
                     </ul>
                 </li>
-                </li>
             </ul>
         </div>
     </div>
 </nav>
+<div class="container">
+    <h1>Statistics</h1>
+    <div class="chart-container">
+        <h2>Tasks by Category</h2>
+        <canvas id="categoryPieChart" width="100" height="200"></canvas>
+    </div>
+    <div class="chart-container">
+        <h2>Completed vs Incomplete Tasks</h2>
+        <canvas id="completionDonutChart" width="100" height="200"></canvas>
+    </div>
+    <div class="chart-container">
+        <h2>Tasks per Category (Completed/Incomplete)</h2>
+        <canvas id="categoryBarChart" width="200" height="100"></canvas>
+    </div>
+</div>
+<footer class="footer">
+    &copy; BCS490 Senior Project Team Purple
+</footer>
+<script>
+    const categories = {{ categories|tojson }};
+    const tasksByCategory = {{ tasks_by_category|tojson }};
+    const completed = {{ completed }};
+    const incomplete = {{ incomplete }};
+    const barCompleted = {{ bar_completed|tojson }};
+    const barIncomplete = {{ bar_incomplete|tojson }};
+</script>
+<script src="../static/statistics.js"></script>
 </body>
 </html>

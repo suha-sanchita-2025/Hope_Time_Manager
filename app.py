@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, s
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from collections import defaultdict
 from calendar import monthrange
 
@@ -200,8 +200,6 @@ def update_task(id):
     db.session.commit()
     return jsonify({'message': 'Task updated successfully!'})
 
-
-
 @app.route('/calendar')
 def calendar():
     if 'user' not in session:
@@ -245,7 +243,56 @@ def delete_completed_tasks():
 
 
 
+@app.route('/account')
+def account():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    return render_template('account.html')
+
+@app.route('/statistics')
+def statistics():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    # Fetch tasks for the current user
+    tasks = Task.query.filter_by(user_id=session['user_id']).all()
+    categories = ['School', 'Work', 'Personal']
+    tasks_by_category = [0, 0, 0]
+    bar_completed = [0, 0, 0]
+    bar_incomplete = [0, 0, 0]
+    completed = 0
+    incomplete = 0
+
+    # Count tasks by category and completion
+    for task in tasks:
+        if task.category.capitalize() in categories:
+            idx = categories.index(task.category.capitalize())
+            tasks_by_category[idx] += 1
+            if task.completed:
+                bar_completed[idx] += 1
+                completed += 1
+            else:
+                bar_incomplete[idx] += 1
+                incomplete += 1
+
+    # Productivity: tasks completed per day for the last 7 days
+    today = datetime.today().date()
+    productivity = []
+    productivity_labels = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        count = sum(1 for t in tasks if t.completed and t.due_date == day)
+        productivity.append(count)
+        productivity_labels.append(day.strftime('%a'))  # e.g., 'Mon', 'Tue', etc.
+
+    return render_template(
+        'statistics.html',
+        categories=categories,
+        tasks_by_category=tasks_by_category,
+        completed=completed,
+        incomplete=incomplete,
+        bar_completed=bar_completed,
+        bar_incomplete=bar_incomplete
+)
 if __name__ == '__main__':
     app.run(debug=True)
-
-
