@@ -16,7 +16,56 @@
         class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
     Toggle Dark Mode
 </button>
+        <!-- Profile Info -->
+        <div class="flex items-center space-x-4 mb-8">
+            <img src="{{ user.avatar_url or url_for('static', filename='default-avatar.png') }}"
+                 alt="Avatar"
+                 class="rounded-full w-24 h-24 border-2 border-purple-400">
+            <div>
+                <h2 class="text-2xl font-bold">{{ user.username }}</h2>
+                <p class="text-gray-600 dark:text-gray-300">{{ user.email }}</p>
+            </div>
+        </div>
 
+        <!-- Update Profile Form -->
+        <form method="POST" action="/account/update" class="space-y-4 mb-8">
+            <h3 class="font-semibold text-lg">Update Profile</h3>
+            <input type="text" name="username" value="{{ user.username }}" class="w-full p-2 rounded border" required>
+            <input type="email" name="email" value="{{ user.email }}" class="w-full p-2 rounded border" required>
+            <div>
+                <label class="block mb-1">Change Avatar</label>
+                <input type="file" name="avatar" class="w-full">
+            </div>
+            <button type="submit" class="bg-purple-700 text-white px-4 py-2 rounded hover:bg-purple-800 w-full">Update Profile</button>
+        </form>
 
+        <!-- Change Password Form -->
+        <form method="POST" action="/account/change-password" class="space-y-4 mb-8">
+            <h3 class="font-semibold text-lg">Change Password</h3>
+            <input type="password" name="current_password" placeholder="Current Password" class="w-full p-2 rounded border" required>
+            <input type="password" name="new_password" placeholder="New Password" class="w-full p-2 rounded border" required>
+            <button type="submit" class="bg-purple-700 text-white px-4 py-2 rounded hover:bg-purple-800 w-full">Change Password</button>
+        </form>
 
+        <!-- Logout and Delete Account -->
+        <div class="flex justify-between">
+            <form method="POST" action="/logout">
+                <button type="submit" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Logout</button>
+            </form>
+            <form method="POST" action="/account/delete" onsubmit="return confirm('Are you sure you want to delete your account? This cannot be undone.');">
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete Account</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('darkToggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        const isDark = document.documentElement.classList.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+    }
+</script>
 {% endblock %}

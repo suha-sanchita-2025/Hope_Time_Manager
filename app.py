@@ -1,8 +1,11 @@
+
+import os
 import requests
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from datetime import datetime, date, timedelta
 from collections import defaultdict
 from calendar import monthrange
@@ -206,7 +209,6 @@ def calendar():
         return redirect(url_for('login'))
     return render_template('calendar.html')
 
-
 @app.route('/api/user_tasks', methods=['GET'])
 def user_tasks():
     if 'user_id' not in session:
@@ -223,7 +225,7 @@ def user_tasks():
         } for t in tasks
     ])
 
-#Mark all tasks as completed
+# Mark all tasks as completed
 @app.route('/task_list/complete_all', methods=['POST'])
 def complete_all_tasks():
     if 'user_id' not in session:
@@ -241,13 +243,56 @@ def delete_completed_tasks():
     db.session.commit()
     return jsonify({'message': 'All completed tasks deleted!'})
 
-
-
 @app.route('/account')
 def account():
-    if 'user' not in session:
+    if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('account.html')
+    user = User.query.get(session['user_id'])
+    return render_template('account.html', user=user)
+
+# --- Account management routes ---
+
+@app.route('/account/update', methods=['POST'])
+def update_account():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user = User.query.get(session['user_id'])
+    username = request.form['username']
+    email = request.form['email']
+    if email != user.email and User.query.filter_by(email=email).first():
+        flash('Email already registered', 'error')
+        return redirect(url_for('account'))
+    user.username = username
+    user.email = email
+    db.session.commit()
+    flash('Profile updated!', 'success')
+    return redirect(url_for('account'))
+
+@app.route('/account/change-password', methods=['POST'])
+def change_password():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user = User.query.get(session['user_id'])
+    current_password = request.form['current_password']
+    new_password = request.form['new_password']
+    if not check_password_hash(user.password, current_password):
+        flash('Current password is incorrect', 'error')
+        return redirect(url_for('account'))
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+    flash('Password changed!', 'success')
+    return redirect(url_for('account'))
+
+@app.route('/account/delete', methods=['POST'])
+def delete_account():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user = User.query.get(session['user_id'])
+    db.session.delete(user)
+    db.session.commit()
+    session.clear()
+    flash('Account deleted.', 'success')
+    return redirect(url_for('signup'))
 
 @app.route('/statistics')
 def statistics():
@@ -293,6 +338,7 @@ def statistics():
         incomplete=incomplete,
         bar_completed=bar_completed,
         bar_incomplete=bar_incomplete
-)
+    )
+
 if __name__ == '__main__':
     app.run(debug=True)
