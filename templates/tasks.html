@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    {% extends "base.html" %}
+    {% block content %}
     <title>Tasks - TaskFusion</title>
     <script>
         if (localStorage.getItem('theme') === 'dark') {
@@ -18,14 +20,10 @@
 <body class="bg-purple-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 transition-colors duration-300">
 
 <!-- Header Buttons -->
-<div class="flex justify-between items-center mb-6">
-    <a href="{{ url_for('index') }}"
-       class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 font-semibold">
-        Home
-    </a>
+
     <button id="darkToggle"
             class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
-        Light Mode / Dark Mode
+        Toggle Dark Mode
     </button>
 </div>
 
@@ -242,4 +240,5 @@
     fetchTasksWithFilters();
 </script>
 </body>
+{% endblock %}
 </html>

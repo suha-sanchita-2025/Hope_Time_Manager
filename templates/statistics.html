@@ -1,57 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>TaskFusion - Statistics</title>
-    <link rel="stylesheet" href="../static/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-<nav class="navbar">
-    <div class="navbar-container">
-        <a href="../templates/index.html" class="navbar-logo">TaskFusion</a>
-        <button class="navbar-toggle" id="mobile-menu">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </button>
-        <div class="navbar-menu">
-            <ul class="navbar-menu">
-                <li><a href="/tasks">Tasks</a></li>
-                <li><a href="/calendar">Calendar</a></li>
-                <li><a href="/statistics">Statistics</a></li>
-                <li class="navbar-account">
-                    <a href="#">Account &#9662;</a>
-                    <ul class="dropdown">
-                        <li><a href="/account">My Account</a></li>
-                        <li><a href="/login">Login</a></li>
-                        <li><a href="/signup">Sign Up</a></li>
-                        <li><a href="/logout">Logout</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
-<div class="container">
-    <h1>Statistics</h1>
-    <div class="chart-container">
-        <h2>Tasks by Category</h2>
-        <canvas id="categoryPieChart" width="100" height="200"></canvas>
-    </div>
-    <div class="chart-container">
-        <h2>Completed vs Incomplete Tasks</h2>
-        <canvas id="completionDonutChart" width="100" height="200"></canvas>
-    </div>
-    <div class="chart-container">
-        <h2>Tasks per Category (Completed/Incomplete)</h2>
-        <canvas id="categoryBarChart" width="200" height="100"></canvas>
-    </div>
-</div>
-<footer class="footer">
-    &copy; BCS490 Senior Project Team Purple
-</footer>
+{% extends "base.html" %}
+{% block content %}
+
 <script>
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+    }
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = { darkMode: 'class' };
+</script>
+
+<body class="bg-purple-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 transition-colors duration-300">
+
+<button id="darkToggle"
+        class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
+    Toggle Dark Mode
+</button>
+
+<div class="chart-container">
+    <h2>Tasks by Category</h2>
+    <canvas id="categoryPieChart" width="100" height="200"></canvas>
+</div>
+<div class="chart-container">
+    <h2>Completed vs Incomplete Tasks</h2>
+    <canvas id="completionDonutChart" width="100" height="200"></canvas>
+</div>
+<div class="chart-container">
+    <h2>Tasks per Category (Completed/Incomplete)</h2>
+    <canvas id="categoryBarChart" width="200" height="100"></canvas>
+</div>
+
+<script>
+    document.getElementById('darkToggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        const isDark = document.documentElement.classList.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
     const categories = {{ categories|tojson }};
     const tasksByCategory = {{ tasks_by_category|tojson }};
     const completed = {{ completed }};
@@ -60,5 +46,4 @@
     const barIncomplete = {{ bar_incomplete|tojson }};
 </script>
 <script src="../static/statistics.js"></script>
-</body>
-</html>
+{% endblock %}

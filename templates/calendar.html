@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% extends "base.html" %}
+    {% block content %}
     <meta charset="UTF-8">
     <title>Calendar - TaskFusion</title>
     <script>
@@ -22,11 +24,7 @@
 <body class="flex flex-col bg-purple-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 min-h-screen">
 
 <!-- Header -->
-<div class="flex justify-between items-center p-4 shadow-md bg-white dark:bg-gray-800">
-    <a href="{{ url_for('index') }}"
-       class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 font-semibold dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
-        Home
-    </a>
+
     <button id="darkToggle"
             class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
         Toggle Dark Mode
@@ -80,4 +78,5 @@
   });
 </script>
 </body>
+{% endblock %}
 </html>
