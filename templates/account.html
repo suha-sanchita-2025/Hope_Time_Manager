@@ -10,12 +10,18 @@
     tailwind.config = { darkMode: 'class' };
 </script>
 
-<body class="bg-purple-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 transition-colors duration-300">
+<!-- Dark mode toggle fixed to top right of viewport -->
+<div class="fixed right-8 top-8 z-10">
+    <button id="darkToggle"
+            class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
+        Toggle Dark Mode
+    </button>
+</div>
 
-<button id="darkToggle"
-        class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
-    Toggle Dark Mode
-</button>
+<!-- Centered and wider white box -->
+<div class="min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-10xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8  min-h-[700px]">
+        <h1 class="text-3xl font-bold mb-6 text-center">My Account</h1>
         <!-- Profile Info -->
         <div class="flex items-center space-x-4 mb-8">
             <img src="{{ user.avatar_url or url_for('static', filename='default-avatar.png') }}"
@@ -26,7 +32,6 @@
                 <p class="text-gray-600 dark:text-gray-300">{{ user.email }}</p>
             </div>
         </div>
-
         <!-- Update Profile Form -->
         <form method="POST" action="/account/update" class="space-y-4 mb-8">
             <h3 class="font-semibold text-lg">Update Profile</h3>
@@ -38,7 +43,6 @@
             </div>
             <button type="submit" class="bg-purple-700 text-white px-4 py-2 rounded hover:bg-purple-800 w-full">Update Profile</button>
         </form>
-
         <!-- Change Password Form -->
         <form method="POST" action="/account/change-password" class="space-y-4 mb-8">
             <h3 class="font-semibold text-lg">Change Password</h3>
@@ -46,7 +50,6 @@
             <input type="password" name="new_password" placeholder="New Password" class="w-full p-2 rounded border" required>
             <button type="submit" class="bg-purple-700 text-white px-4 py-2 rounded hover:bg-purple-800 w-full">Change Password</button>
         </form>
-
         <!-- Logout and Delete Account -->
         <div class="flex justify-between">
             <form method="POST" action="/logout">
