@@ -97,7 +97,7 @@ def home():
         return render_template('index.html')
     return redirect(url_for('login'))
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.pop('user', None)
     session.pop('user_id', None)
