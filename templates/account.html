@@ -32,8 +32,8 @@
                 <p class="text-gray-600 dark:text-gray-300">{{ user.email }}</p>
             </div>
         </div>
-        <!-- Update Profile Form -->
-        <form method="POST" action="/account/update" class="space-y-4 mb-8">
+        <!-- Update Profile Form --->
+        <form method="POST" action="/account/update" enctype="multipart/form-data" class="space-y-4 mb-8">
             <h3 class="font-semibold text-lg">Update Profile</h3>
             <input type="text" name="username" value="{{ user.username }}" class="w-full p-2 rounded border" required>
             <input type="email" name="email" value="{{ user.email }}" class="w-full p-2 rounded border" required>

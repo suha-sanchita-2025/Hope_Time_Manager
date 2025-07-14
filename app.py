@@ -18,6 +18,20 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
 
+
+# Set UPLOAD_FOLDER as an absolute path
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads', 'avatars')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2 MB
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 CORS(app)
 db = SQLAlchemy(app)
 
@@ -37,7 +51,9 @@ class User(db.Model):
     username = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    avatar_url = db.Column(db.String(200))  # Add this field
     tasks = db.relationship('Task', backref='user', lazy=True)
+
 
 # Task model
 class Task(db.Model):
@@ -248,9 +264,10 @@ def account():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     user = User.query.get(session['user_id'])
+    if not user.avatar_url:
+        user.avatar_url = url_for('static', filename='default-avatar.png')
     return render_template('account.html', user=user)
-
-# --- Account management routes ---
+# Account management routes
 
 @app.route('/account/update', methods=['POST'])
 def update_account():
@@ -259,14 +276,30 @@ def update_account():
     user = User.query.get(session['user_id'])
     username = request.form['username']
     email = request.form['email']
+    file = request.files.get('avatar')
+
     if email != user.email and User.query.filter_by(email=email).first():
         flash('Email already registered', 'error')
         return redirect(url_for('account'))
     user.username = username
     user.email = email
+
+    if file and file.filename != '':
+        if allowed_file(file.filename):
+            filename = secure_filename(f"{user.id}_{file.filename}")
+            # Save to disk using os.path.join (handles Windows paths)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            # Set URL using forward slashes for Flask static serving
+            user.avatar_url = url_for('static', filename=f'uploads/avatars/{filename}')
+        else:
+            flash('Invalid file type. Please upload an image.', 'error')
+            return redirect(url_for('account'))
+
     db.session.commit()
     flash('Profile updated!', 'success')
     return redirect(url_for('account'))
+
 
 @app.route('/account/change-password', methods=['POST'])
 def change_password():
