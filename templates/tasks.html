@@ -2,243 +2,225 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    {% extends "base.html" %}
-    {% block content %}
-    <title>Tasks - TaskFusion</title>
-    <script>
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-        }
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class'
-        };
-    </script>
-</head>
-<body class="bg-purple-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 transition-colors duration-300">
 
-<!-- Header Buttons -->
+   {% extends "base.html" %}
+   {% block content %}
+   <!-- Header Buttons -->
+   <div class="flex justify-center mb-4">
+       <button id="darkToggle"
+           class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
+           Toggle Dark Mode
+       </button>
+   </div>
 
-    <button id="darkToggle"
-            class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
-        Toggle Dark Mode
-    </button>
-</div>
+   <!-- Task Panel (centered) -->
 
-<!-- Task Panel -->
-<div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-    <!-- Filters & Add Task -->
-    <div class="flex flex-wrap gap-2 mb-4">
-        <input id="search" type="text" placeholder="Search tasks..." class="border p-2 rounded flex-1">
-        <select id="categoryFilter" class="border p-2 rounded">
-            <option value="">All Categories</option>
-            <option value="school">School</option>
-            <option value="work">Work</option>
-            <option value="personal">Personal</option>
-        </select>
-        <select id="priorityFilter" class="border p-2 rounded">
-            <option value="">All Priorities</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-        </select>
-        <button id="addTaskBtn" class="bg-purple-500 text-white px-4 py-2 rounded">Add Task</button>
-    </div>
 
-    <!-- Task Tools Dropdown -->
-    <div class="relative inline-block mb-4">
-        <button id="taskToolsBtn" class="btn bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded">Task Tools ▼</button>
-        <div id="taskToolsMenu" class="hidden absolute bg-white dark:bg-gray-700 border rounded shadow z-10">
-            <button onclick="markAllCompleted()" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Mark All as Completed</button>
-            <button onclick="deleteAllCompleted()" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Delete All Completed Tasks</button>
-        </div>
-    </div>
+    <div class="min-h-screen flex items-start justify-start">
+        <div class="max-w-5xl bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 w-full ml-64 mt-24">
+       <!-- Filters & Add Task -->
+       <div class="flex flex-wrap gap-2 mb-4">
+           <input id="search" type="text" placeholder="Search tasks..." class="border p-2 rounded flex-1">
+           <select id="categoryFilter" class="border p-2 rounded">
+               <option value="">All Categories</option>
+               <option value="school">School</option>
+               <option value="work">Work</option>
+               <option value="personal">Personal</option>
+           </select>
+           <select id="priorityFilter" class="border p-2 rounded">
+               <option value="">All Priorities</option>
+               <option value="low">Low</option>
+               <option value="medium">Medium</option>
+               <option value="high">High</option>
+           </select>
+           <button id="addTaskBtn" class="bg-purple-500 text-white px-4 py-2 rounded">Add Task</button>
+       </div>
 
-    <!-- Task Table -->
-    <table class="w-full text-left">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Priority</th>
-            <th>Due Date</th>
-            <th>Completed</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody id="taskList">
-        <!-- Tasks will be injected by JS -->
-        </tbody>
-    </table>
-</div>
+       <!-- Task Tools Dropdown -->
+       <div class="relative inline-block mb-4">
+           <button id="taskToolsBtn" class="btn bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded">Task Tools ▼</button>
+           <div id="taskToolsMenu" class="hidden absolute bg-white dark:bg-gray-700 border rounded shadow z-10">
+               <button onclick="markAllCompleted()" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Mark All as Completed</button>
+               <button onclick="deleteAllCompleted()" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Delete All Completed Tasks</button>
+           </div>
+       </div>
 
-<!-- Modal for Add/Edit Task -->
-<div id="modal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-96 text-gray-900 dark:text-gray-100">
-        <h2 class="text-lg font-bold mb-4" id="modalTitle">Add Task</h2>
-        <form id="taskForm" class="space-y-3">
-            <input type="text" name="name" placeholder="Task Name" required class="w-full border p-2 rounded bg-white dark:bg-gray-700">
-            <select name="category" required class="w-full border p-2 rounded bg-white dark:bg-gray-700">
-                <option value="school">School</option>
-                <option value="work">Work</option>
-                <option value="personal">Personal</option>
-            </select>
-            <select name="priority" required class="w-full border p-2 rounded bg-white dark:bg-gray-700">
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-            </select>
-            <input type="date" name="due_date" required class="w-full border p-2 rounded bg-white dark:bg-gray-700">
-            <label class="flex items-center">
-                <input type="checkbox" name="completed" class="mr-2"> Completed
-            </label>
-            <div class="flex justify-end space-x-2">
-                <button type="button" id="closeModal" class="px-4 py-2 rounded bg-gray-300 dark:bg-gray-600">Cancel</button>
-                <button type="submit" class="px-4 py-2 rounded bg-purple-500 text-white" id="submitBtn">Add</button>
-            </div>
-        </form>
-    </div>
-</div>
+       <!-- Task Table -->
+       <table class="w-full text-left table-fixed">
+           <thead>
+               <tr>
+                   <th class="w-48 truncate overflow-hidden whitespace-nowrap">Name</th>
+                   <th class="w-32 truncate overflow-hidden whitespace-nowrap">Category</th>
+                   <th class="w-24 truncate overflow-hidden whitespace-nowrap">Priority</th>
+                   <th class="w-32 truncate overflow-hidden whitespace-nowrap">Due Date</th>
+                   <th class="w-24 truncate overflow-hidden whitespace-nowrap">Completed</th>
+                   <th class="w-48 truncate overflow-hidden whitespace-nowrap">Notes</th>
+                   <th class="w-32 truncate overflow-hidden whitespace-nowrap">Actions</th>
+               </tr>
+           </thead>
+           <tbody id="taskList">
+               <!-- JS will inject rows here -->
+           </tbody>
+       </table>
+   </div>
 
-<!-- JavaScript Section -->
-<script>
-    // Toggle dark mode button
-    document.getElementById('darkToggle').addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        const isDark = document.documentElement.classList.contains('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
+   <!-- Modal for Add/Edit Task -->
+   <div id="modal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden">
+       <div class="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-96 text-gray-900 dark:text-gray-100">
+           <h2 class="text-lg font-bold mb-4" id="modalTitle">Add Task</h2>
+           <form id="taskForm" class="space-y-3">
+               <input type="text" name="name" placeholder="Task Name" required class="w-full border p-2 rounded bg-white dark:bg-gray-700">
+               <select name="category" required class="w-full border p-2 rounded bg-white dark:bg-gray-700">
+                   <option value="school">School</option>
+                   <option value="work">Work</option>
+                   <option value="personal">Personal</option>
+               </select>
+               <select name="priority" required class="w-full border p-2 rounded bg-white dark:bg-gray-700">
+                   <option value="low">Low</option>
+                   <option value="medium">Medium</option>
+                   <option value="high">High</option>
+               </select>
+               <input type="date" name="due_date" required class="w-full border p-2 rounded bg-white dark:bg-gray-700">
+               <textarea name="notes" placeholder="Notes (optional)" class="w-full border p-2 rounded bg-white dark:bg-gray-700"></textarea>
+               <label class="flex items-center">
+                   <input type="checkbox" name="completed" class="mr-2"> Completed
+               </label>
+               <div class="flex justify-end space-x-2">
+                   <button type="button" id="closeModal" class="px-4 py-2 rounded bg-gray-300 dark:bg-gray-600">Cancel</button>
+                   <button type="submit" class="px-4 py-2 rounded bg-purple-500 text-white" id="submitBtn">Add</button>
+               </div>
+           </form>
+       </div>
+   </div>
 
-    // Dropdown toggle
-    document.getElementById('taskToolsBtn').onclick = function () {
-        document.getElementById('taskToolsMenu').classList.toggle('hidden');
-    };
-
-    // Task helpers
-    function markAllCompleted() {
-        fetch('/task_list/complete_all', { method: 'POST' })
-            .then(res => res.json())
-            .then(fetchTasksWithFilters);
-    }
-
-    function deleteAllCompleted() {
-        fetch('/task_list/delete_completed', { method: 'DELETE' })
-            .then(res => res.json())
-            .then(fetchTasksWithFilters);
-    }
-
-    document.getElementById('search').addEventListener('input', fetchTasksWithFilters);
-    document.getElementById('categoryFilter').addEventListener('change', fetchTasksWithFilters);
-    document.getElementById('priorityFilter').addEventListener('change', fetchTasksWithFilters);
-
-    function fetchTasksWithFilters() {
-        const search = document.getElementById('search').value;
-        const category = document.getElementById('categoryFilter').value;
-        const priority = document.getElementById('priorityFilter').value;
-        let url = `/task_list?search=${encodeURIComponent(search)}`;
-        if (category) url += `&category=${encodeURIComponent(category)}`;
-        if (priority) url += `&priority=${encodeURIComponent(priority)}`;
-        fetch(url)
-            .then(res => res.json())
-            .then(renderTasks);
-    }
-
-    function renderTasks(tasks) {
-        const tbody = document.getElementById('taskList');
-        tbody.innerHTML = '';
-        const today = new Date().toISOString().split('T')[0];
-        tasks.forEach(task => {
-            const isOverdue = !task.completed && task.due_date < today;
-            const tr = document.createElement('tr');
-            tr.className = isOverdue ? 'text-red-600 font-bold' : '';
-            tr.innerHTML = `
-          <td>${task.name}</td>
-          <td>${task.category}</td>
-          <td>${task.priority}</td>
-          <td>${task.due_date}</td>
-          <td><input type="checkbox" disabled ${task.completed ? 'checked' : ''}></td>
-          <td>
-            <button onclick="editTask(${task.id})" class="text-blue-500 hover:underline">Edit</button>
-            <button onclick="deleteTask(${task.id})" class="text-red-500 hover:underline ml-2">Delete</button>
-          </td>
-        `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modalTitle');
-    const submitBtn = document.getElementById('submitBtn');
-    let editingTaskId = null;
-
-    document.getElementById('addTaskBtn').onclick = () => {
-        modalTitle.textContent = 'Add Task';
-        submitBtn.textContent = 'Add';
-        editingTaskId = null;
-        document.getElementById('taskForm').reset();
-        modal.classList.remove('hidden');
-    };
-
-    document.getElementById('closeModal').onclick = () => {
-        modal.classList.add('hidden');
-    };
-
-    document.getElementById('taskForm').onsubmit = function (e) {
-        e.preventDefault();
-        const form = e.target;
-        const method = editingTaskId ? 'PUT' : 'POST';
-        const url = editingTaskId ? `/task_list/${editingTaskId}` : '/task_list';
-        fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: form.name.value,
-                category: form.category.value,
-                priority: form.priority.value,
-                due_date: form.due_date.value,
-                completed: form.completed.checked
-            })
-        })
-            .then(res => res.json())
-            .then(data => {
-                modal.classList.add('hidden');
-                form.reset();
-                editingTaskId = null;
-                fetchTasksWithFilters();
-                alert(data.message);
-            });
-    };
-
-    window.editTask = function (id) {
-        fetch(`/task_list/${id}`)
-            .then(res => res.json())
-            .then(task => {
-                const form = document.getElementById('taskForm');
-                form.name.value = task.name;
-                form.category.value = task.category;
-                form.priority.value = task.priority;
-                form.due_date.value = task.due_date;
-                form.completed.checked = task.completed;
-                modalTitle.textContent = 'Edit Task';
-                submitBtn.textContent = 'Update';
-                editingTaskId = id;
-                modal.classList.remove('hidden');
-            });
-    };
-
-    window.deleteTask = function (id) {
-        if (confirm('Delete this task?')) {
-            fetch(`/task_list/${id}`, { method: 'DELETE' })
-                .then(res => res.json())
-                .then(fetchTasksWithFilters);
-        }
-    };
-
-    // Initial load
-    fetchTasksWithFilters();
-</script>
-</body>
-{% endblock %}
-</html>
+   <!-- Scripts -->
+   <script src="https://cdn.tailwindcss.com"></script>
+   <script>
+       tailwind.config = { darkMode: 'class' };
+       if (localStorage.getItem('theme') === 'dark') {
+           document.documentElement.classList.add('dark');
+       }
+       document.getElementById('darkToggle').addEventListener('click', () => {
+           document.documentElement.classList.toggle('dark');
+           const isDark = document.documentElement.classList.contains('dark');
+           localStorage.setItem('theme', isDark ? 'dark' : 'light');
+       });
+       document.getElementById('taskToolsBtn').onclick = function () {
+           document.getElementById('taskToolsMenu').classList.toggle('hidden');
+       };
+       function markAllCompleted() {
+           fetch('/task_list/complete_all', { method: 'POST' })
+               .then(res => res.json())
+               .then(fetchTasksWithFilters);
+       }
+       function deleteAllCompleted() {
+           fetch('/task_list/delete_completed', { method: 'DELETE' })
+               .then(res => res.json())
+               .then(fetchTasksWithFilters);
+       }
+       document.getElementById('search').addEventListener('input', fetchTasksWithFilters);
+       document.getElementById('categoryFilter').addEventListener('change', fetchTasksWithFilters);
+       document.getElementById('priorityFilter').addEventListener('change', fetchTasksWithFilters);
+       function fetchTasksWithFilters() {
+           const search = document.getElementById('search').value;
+           const category = document.getElementById('categoryFilter').value;
+           const priority = document.getElementById('priorityFilter').value;
+           let url = `/task_list?search=${encodeURIComponent(search)}`;
+           if (category) url += `&category=${encodeURIComponent(category)}`;
+           if (priority) url += `&priority=${encodeURIComponent(priority)}`;
+           fetch(url)
+               .then(res => res.json())
+               .then(renderTasks);
+       }
+      function renderTasks(tasks) {
+          const tbody = document.getElementById('taskList');
+          tbody.innerHTML = '';
+          const today = new Date().toISOString().split('T')[0];
+          tasks.forEach(task => {
+              const isOverdue = !task.completed && task.due_date < today;
+              const tr = document.createElement('tr');
+              tr.className = isOverdue ? 'text-red-600 font-bold' : '';
+              tr.innerHTML = `
+                  <td class="w-48 truncate overflow-hidden whitespace-nowrap" title="${task.name}">${task.name}</td>
+                  <td class="w-32 truncate overflow-hidden whitespace-nowrap" title="${task.category}">${task.category}</td>
+                  <td class="w-24 truncate overflow-hidden whitespace-nowrap" title="${task.priority}">${task.priority}</td>
+                  <td class="w-32 truncate overflow-hidden whitespace-nowrap" title="${task.due_date}">${task.due_date}</td>
+                  <td class="w-24 truncate overflow-hidden whitespace-nowrap"><input type="checkbox" disabled ${task.completed ? 'checked' : ''}></td>
+                  <td class="w-48 truncate overflow-hidden whitespace-nowrap" title="${task.notes ? task.notes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}">
+                      ${task.notes ? task.notes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}
+                  </td>
+                  <td class="w-32 truncate overflow-hidden whitespace-nowrap">
+                      <button onclick="editTask(${task.id})" class="text-blue-500 hover:underline">Edit</button>
+                      <button onclick="deleteTask(${task.id})" class="text-red-500 hover:underline ml-2">Delete</button>
+                  </td>
+              `;
+              tbody.appendChild(tr);
+          });
+      }
+       const modal = document.getElementById('modal');
+       const modalTitle = document.getElementById('modalTitle');
+       const submitBtn = document.getElementById('submitBtn');
+       let editingTaskId = null;
+       document.getElementById('addTaskBtn').onclick = () => {
+           modalTitle.textContent = 'Add Task';
+           submitBtn.textContent = 'Add';
+           editingTaskId = null;
+           document.getElementById('taskForm').reset();
+           modal.classList.remove('hidden');
+       };
+       document.getElementById('closeModal').onclick = () => {
+           modal.classList.add('hidden');
+       };
+       document.getElementById('taskForm').onsubmit = function (e) {
+           e.preventDefault();
+           const form = e.target;
+           const method = editingTaskId ? 'PUT' : 'POST';
+           const url = editingTaskId ? `/task_list/${editingTaskId}` : '/task_list';
+           fetch(url, {
+               method,
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({
+                   name: form.name.value,
+                   category: form.category.value,
+                   priority: form.priority.value,
+                   due_date: form.due_date.value,
+                   completed: form.completed.checked,
+                   notes: form.notes.value
+               })
+           })
+               .then(res => res.json())
+               .then(data => {
+                   modal.classList.add('hidden');
+                   form.reset();
+                   editingTaskId = null;
+                   fetchTasksWithFilters();
+                   alert(data.message);
+               });
+       };
+       window.editTask = function (id) {
+           fetch(`/task_list/${id}`)
+               .then(res => res.json())
+               .then(task => {
+                   const form = document.getElementById('taskForm');
+                   form.name.value = task.name;
+                   form.category.value = task.category;
+                   form.priority.value = task.priority;
+                   form.due_date.value = task.due_date;
+                   form.completed.checked = task.completed;
+                   form.notes.value = task.notes || '';
+                   modalTitle.textContent = 'Edit Task';
+                   submitBtn.textContent = 'Update';
+                   editingTaskId = id;
+                   modal.classList.remove('hidden');
+               });
+       };
+       window.deleteTask = function (id) {
+           if (confirm('Delete this task?')) {
+               fetch(`/task_list/${id}`, { method: 'DELETE' })
+                   .then(res => res.json())
+                   .then(fetchTasksWithFilters);
+           }
+       };
+       fetchTasksWithFilters();
+   </script>
+   {% endblock %}

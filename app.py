@@ -64,6 +64,7 @@ class Task(db.Model):
     due_date = db.Column(db.Date, nullable=False)
     completed = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    notes = db.Column(db.Text)
 
 with app.app_context():
     db.create_all()
@@ -141,7 +142,8 @@ def get_tasks():
             "category": task.category,
             "priority": task.priority,
             "due_date": task.due_date.strftime('%Y-%m-%d'),
-            "completed": task.completed
+            "completed": task.completed,
+            "notes": task.notes
         }
         for task in tasks
     ])
@@ -165,7 +167,8 @@ def add_task():
         priority=data['priority'],
         due_date=due_date,
         completed=data.get('completed', False),
-        user_id=session['user_id']
+        user_id=session['user_id'],
+        notes=data.get('notes', '')
     )
     db.session.add(new_task)
     db.session.commit()
@@ -184,8 +187,10 @@ def get_task(id):
         "category": task.category,
         "priority": task.priority,
         "due_date": task.due_date.strftime('%Y-%m-%d'),
-        "completed": task.completed
+        "completed": task.completed,
+        "notes": task.notes  # Added
     })
+
 
 @app.route('/task_list/<int:id>', methods=['DELETE'])
 def delete_task(id):
@@ -216,6 +221,7 @@ def update_task(id):
     if 'due_date' in data:
         task.due_date = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
     task.completed = data.get('completed', task.completed)
+    task.notes = data.get('notes', task.notes)  # Added
     db.session.commit()
     return jsonify({'message': 'Task updated successfully!'})
 
@@ -237,7 +243,8 @@ def user_tasks():
             'category': t.category,
             'priority': t.priority,
             'due_date': t.due_date.strftime('%Y-%m-%d'),
-            'completed': t.completed
+            'completed': t.completed,
+            'notes': t.notes  # Added
         } for t in tasks
     ])
 
@@ -264,6 +271,9 @@ def account():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     user = User.query.get(session['user_id'])
+    if not user:
+        flash('User not found. Please log in again.', 'error')
+        return redirect(url_for('login'))
     if not user.avatar_url:
         user.avatar_url = url_for('static', filename='default-avatar.png')
     return render_template('account.html', user=user)
@@ -372,6 +382,8 @@ def statistics():
         bar_completed=bar_completed,
         bar_incomplete=bar_incomplete
     )
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
