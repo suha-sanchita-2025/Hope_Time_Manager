@@ -11,12 +11,6 @@
     tailwind.config = { darkMode: 'class' };
 </script>
 
-<body class="bg-purple-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 transition-colors duration-300">
-
-<button id="darkToggle"
-        class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
-    Toggle Dark Mode
-</button>
 
 <div class="w-full max-w-8xl mx-auto bg-white rounded-lg shadow p-6 mb-8">
     <h2 class="text-xl font-bold mb-4 text-center">Statistics</h2>
@@ -43,11 +37,6 @@
 </div>
 
 <script>
-    document.getElementById('darkToggle').addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        const isDark = document.documentElement.classList.contains('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
 
     const categories = {{ categories|tojson }};
     const tasksByCategory = {{ tasks_by_category|tojson }};

@@ -11,12 +11,6 @@
 </script>
 
 <!-- Dark mode toggle fixed to top right of viewport -->
-<div class="fixed right-8 top-8 z-10">
-    <button id="darkToggle"
-            class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
-        Toggle Dark Mode
-    </button>
-</div>
 
 <!-- Centered and wider white box -->
 <div class="min-h-screen flex items-center justify-center">
@@ -61,14 +55,5 @@
         </div>
     </div>
 </div>
-<script>
-    document.getElementById('darkToggle').addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        const isDark = document.documentElement.classList.contains('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
-    if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.classList.add('dark');
-    }
-</script>
+
 {% endblock %}

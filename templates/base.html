@@ -7,45 +7,57 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         if (localStorage.getItem('theme') === 'dark') {
-          document.documentElement.classList.add('dark');
+            document.documentElement.classList.add('dark');
         }
     </script>
 </head>
 <body class="bg-purple-100 dark:bg-gray-900">
-<nav class="navbar">
-    <div class="navbar-container">
-        <a href="{{ url_for('index') }}" class="navbar-logo">TaskFusion</a>
-        <button class="navbar-toggle" id="mobile-menu">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </button>
-        <div class="navbar-menu">
-            <ul class="navbar-menu">
-                <li><a href="/tasks">Tasks</a></li>
-                <li><a href="/calendar">Calendar</a></li>
-                <li><a href="/statistics">Statistics</a></li>
-                <li class="navbar-account">
-                    <a href="#">Account &#9662;</a>
-                   <ul class="dropdown">
-                       <li><a href="/account">My Account</a></li>
-                    {% if user %}
-                        <li><a href="/logout">Logout</a></li>
-                    {% else %}
-                        <li><a href="/login">Login</a></li>
-                        <li><a href="/signup">Sign Up</a></li>
-                    {% endif %}
-                   </ul>
-                </li>
-            </ul>
+    <!-- Fixed dark mode toggle button -->
+    <button id="darkToggle"
+        style="position:fixed;top:1rem;right:1rem;z-index:50;background:white;color:#7c3aed;border:1px solid #7c3aed;padding:0.5rem 1rem;border-radius:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:background 0.3s;"
+        class="dark:bg-gray-800 dark:text-gray-100 dark:border-gray-300">
+        Toggle Dark Mode
+    </button>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('index') }}" class="navbar-logo">TaskFusion</a>
+            <button class="navbar-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <div class="navbar-menu">
+                <ul class="navbar-menu">
+                    <li><a href="/tasks">Tasks</a></li>
+                    <li><a href="/calendar">Calendar</a></li>
+                    <li><a href="/statistics">Statistics</a></li>
+                    <li class="navbar-account">
+                        <a href="#">Account &#9662;</a>
+                        <ul class="dropdown">
+                            <li><a href="/account">My Account</a></li>
+                            {% if user %}
+                                <li><a href="/logout">Logout</a></li>
+                            {% else %}
+                                <li><a href="/login">Login</a></li>
+                                <li><a href="/signup">Sign Up</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
     </div>
-</nav>
-<div class="container">
-    {% block content %}{% endblock %}
-</div>
-<footer class="footer">
-    &copy; BCS430 Senior Project Team Purple
-</footer>
+    <footer class="footer">
+        &copy; BCS430 Senior Project Team Purple
+    </footer>
+    <script>
+        document.getElementById('darkToggle').addEventListener('click', function() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        });
+    </script>
 </body>
 </html>
