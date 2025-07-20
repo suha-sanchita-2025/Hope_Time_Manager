@@ -1,18 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block content %}
+
 <head>
     <meta charset="UTF-8">
     <title>Sign Up - TaskFusion</title>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+    </script>
 </head>
 <body class="bg-purple-100 flex flex-col items-center min-h-screen p-4">
-<a href="{{ url_for('index') }}"
-   class="bg-white text-purple-700 border border-purple-700 px-4 py-2 rounded shadow hover:bg-purple-100 font-semibold mb-4 inline-block">
-    Home
-</a>
-<div class="container-wrapper w-full bg-white shadow-lg rounded-xl p-6 sm:p-8 md:p-10 mt-12">
-    <h2 class="text-2xl font-bold mb-6 text-center quote-purple">Create an Account</h2>
+
+<div class="container-wrapper w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 sm:p-8 md:p-10 mt-12">
+    <h2 class="text-2xl font-bold mb-6 text-center quote-purple dark:text-white">Create an Account</h2>
 
     {% if error %}
     <div class="text-red-600 mb-4">{{ error }}</div>
@@ -24,7 +30,10 @@
         <input type="password" name="password" placeholder="Password" class="p-2 border rounded" required>
         <button type="submit" class="bg-purple-700 text-white py-2 rounded hover:bg-purple-900">Sign Up</button>
     </form>
-    <p class="mt-4 text-center">Already have an account? <a href="/login" class="text-blue-700 underline">Log in</a></p>
+    <p class="mt-4 text-center dark:text-white">
+        Already have an account?
+        <a href="/login" class="text-blue-700 dark:text-blue-300 underline">Log in</a>
+    </p>
 </div>
 </body>
-</html>
+{% endblock %}

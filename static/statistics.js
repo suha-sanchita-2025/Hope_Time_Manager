@@ -5,7 +5,7 @@ new Chart(document.getElementById('categoryPieChart'), {
         labels: categories,
         datasets: [{
             data: tasksByCategory,
-            backgroundColor: ['#8e44ad', '#3498db', '#e67e22']
+            backgroundColor: ['#0008ff', '#00b318', '#8102f7']
         }]
     }
 });

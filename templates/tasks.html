@@ -19,7 +19,7 @@
 
 
     <div class="min-h-screen flex items-start justify-start">
-        <div class="max-w-5xl bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 w-full ml-64    mt-24">
+        <div class="w-full ml-96 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8  mt-10">
        <!-- Filters & Add Task -->
        <div class="flex flex-wrap gap-2 mb-4">
            <input id="search" type="text" placeholder="Search tasks..." class="border p-2 rounded flex-1">
@@ -50,21 +50,27 @@
        <!-- Task Table -->
        <table class="w-full text-left table-fixed">
            <thead>
-               <tr>
-                   <th class="w-48 truncate overflow-hidden whitespace-nowrap">Name</th>
-                   <th class="w-32 truncate overflow-hidden whitespace-nowrap">Category</th>
-                   <th class="w-24 truncate overflow-hidden whitespace-nowrap">Priority</th>
-                   <th class="w-32 truncate overflow-hidden whitespace-nowrap">Due Date</th>
-                   <th class="w-24 truncate overflow-hidden whitespace-nowrap">Completed</th>
-                   <th class="w-48 truncate overflow-hidden whitespace-nowrap">Notes</th>
-                   <th class="w-32 truncate overflow-hidden whitespace-nowrap">Actions</th>
-               </tr>
-           </thead>
-           <tbody id="taskList">
-               <!-- JS will inject rows here -->
-           </tbody>
+
+              <tr>
+<thead>
+    <tr>
+        <th class="w-48 truncate overflow-hidden whitespace-nowrap dark:text-white">Name</th>
+        <th class="w-32 truncate overflow-hidden whitespace-nowrap dark:text-white">Category</th>
+        <th class="w-24 truncate overflow-hidden whitespace-nowrap dark:text-white">Priority</th>
+        <th class="w-32 truncate overflow-hidden whitespace-nowrap dark:text-white">Due Date</th>
+        <th class="w-24 truncate overflow-hidden whitespace-nowrap dark:text-white">Completed</th>
+        <th class="w-48 truncate overflow-hidden whitespace-nowrap dark:text-white">Notes</th>
+        <th class="w-32 truncate overflow-hidden whitespace-nowrap dark:text-white">Actions</th>
+    </tr>
+</thead>
+              </tr>
+          </thead>
+          <tbody id="taskList">
+              <!-- JS will inject rows here -->
+          </tbody>
+
        </table>
-   </div>
+
 
    <!-- Modal for Add/Edit Task -->
    <div id="modal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden">
@@ -126,31 +132,31 @@
                .then(res => res.json())
                .then(renderTasks);
        }
-      function renderTasks(tasks) {
-          const tbody = document.getElementById('taskList');
-          tbody.innerHTML = '';
-          const today = new Date().toISOString().split('T')[0];
-          tasks.forEach(task => {
-              const isOverdue = !task.completed && task.due_date < today;
-              const tr = document.createElement('tr');
-              tr.className = isOverdue ? 'text-red-600 font-bold' : '';
-              tr.innerHTML = `
-                  <td class="w-48 truncate overflow-hidden whitespace-nowrap" title="${task.name}">${task.name}</td>
-                  <td class="w-32 truncate overflow-hidden whitespace-nowrap" title="${task.category}">${task.category}</td>
-                  <td class="w-24 truncate overflow-hidden whitespace-nowrap" title="${task.priority}">${task.priority}</td>
-                  <td class="w-32 truncate overflow-hidden whitespace-nowrap" title="${task.due_date}">${task.due_date}</td>
-                  <td class="w-24 truncate overflow-hidden whitespace-nowrap"><input type="checkbox" disabled ${task.completed ? 'checked' : ''}></td>
-                  <td class="w-48 truncate overflow-hidden whitespace-nowrap" title="${task.notes ? task.notes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}">
-                      ${task.notes ? task.notes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}
-                  </td>
-                  <td class="w-32 truncate overflow-hidden whitespace-nowrap">
-                      <button onclick="editTask(${task.id})" class="text-blue-500 hover:underline">Edit</button>
-                      <button onclick="deleteTask(${task.id})" class="text-red-500 hover:underline ml-2">Delete</button>
-                  </td>
-              `;
-              tbody.appendChild(tr);
-          });
-      }
+     function renderTasks(tasks) {
+         const tbody = document.getElementById('taskList');
+         tbody.innerHTML = '';
+         const today = new Date().toISOString().split('T')[0];
+         tasks.forEach(task => {
+             const isOverdue = !task.completed && task.due_date < today;
+             const tr = document.createElement('tr');
+             tr.className = isOverdue ? 'text-red-600 font-bold' : '';
+             tr.innerHTML = `
+                 <td class="w-48 truncate overflow-hidden whitespace-nowrap dark:text-white" title="${task.name}">${task.name}</td>
+                 <td class="w-32 truncate overflow-hidden whitespace-nowrap dark:text-white" title="${task.category}">${task.category}</td>
+                 <td class="w-24 truncate overflow-hidden whitespace-nowrap dark:text-white" title="${task.priority}">${task.priority}</td>
+                 <td class="w-32 truncate overflow-hidden whitespace-nowrap dark:text-white" title="${task.due_date}">${task.due_date}</td>
+                 <td class="w-24 truncate overflow-hidden whitespace-nowrap"><input type="checkbox" disabled ${task.completed ? 'checked' : ''}></td>
+                 <td class="w-48 truncate overflow-hidden whitespace-nowrap dark:text-white" title="${task.notes ? task.notes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}">
+                     ${task.notes ? task.notes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}
+                 </td>
+                 <td class="w-32 truncate overflow-hidden whitespace-nowrap">
+                     <button onclick="editTask(${task.id})" class="text-blue-500 hover:underline dark:text-white">Edit</button>
+                     <button onclick="deleteTask(${task.id})" class="text-red-500 hover:underline ml-2 dark:text-white">Delete</button>
+                 </td>
+             `;
+             tbody.appendChild(tr);
+         });
+     }
        const modal = document.getElementById('modal');
        const modalTitle = document.getElementById('modalTitle');
        const submitBtn = document.getElementById('submitBtn');

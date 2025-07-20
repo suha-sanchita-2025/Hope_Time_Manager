@@ -13,33 +13,33 @@
 <!-- Dark mode toggle fixed to top right of viewport -->
 
 <!-- Centered and wider white box -->
-<div class="min-h-screen flex items-center justify-center">
-    <div class="w-full max-w-10xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8  min-h-[700px]">
-        <h1 class="text-3xl font-bold mb-6 text-center">My Account</h1>
+<div class="min-h-screen flex items-center">
+  <div class="w-full ml-96 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 min-h-[700px]">
+        <h1 class="text-3xl font-bold mb-6 text-center dark:text-white">My Account</h1>
         <!-- Profile Info -->
         <div class="flex items-center space-x-4 mb-8">
             <img src="{{ user.avatar_url or url_for('static', filename='default-avatar.png') }}"
                  alt="Avatar"
                  class="rounded-full w-24 h-24 border-2 border-purple-400">
             <div>
-                <h2 class="text-2xl font-bold">{{ user.username }}</h2>
+                <h2 class="text-2xl font-bold dark:text-white">{{ user.username }}</h2>
                 <p class="text-gray-600 dark:text-gray-300">{{ user.email }}</p>
             </div>
         </div>
         <!-- Update Profile Form --->
         <form method="POST" action="/account/update" enctype="multipart/form-data" class="space-y-4 mb-8">
-            <h3 class="font-semibold text-lg">Update Profile</h3>
+            <h3 class="font-semibold text-lg dark:text-white">Update Profile</h3>
             <input type="text" name="username" value="{{ user.username }}" class="w-full p-2 rounded border" required>
             <input type="email" name="email" value="{{ user.email }}" class="w-full p-2 rounded border" required>
             <div>
-                <label class="block mb-1">Change Avatar</label>
+                <label class="block mb-1 dark:text-white">Change Avatar</label>
                 <input type="file" name="avatar" class="w-full">
             </div>
             <button type="submit" class="bg-purple-700 text-white px-4 py-2 rounded hover:bg-purple-800 w-full">Update Profile</button>
         </form>
         <!-- Change Password Form -->
         <form method="POST" action="/account/change-password" class="space-y-4 mb-8">
-            <h3 class="font-semibold text-lg">Change Password</h3>
+            <h3 class="font-semibold text-lg dark:text-white">Change Password</h3>
             <input type="password" name="current_password" placeholder="Current Password" class="w-full p-2 rounded border" required>
             <input type="password" name="new_password" placeholder="New Password" class="w-full p-2 rounded border" required>
             <button type="submit" class="bg-purple-700 text-white px-4 py-2 rounded hover:bg-purple-800 w-full">Change Password</button>

@@ -113,3 +113,18 @@ option {
 .quote-purple {
   color: #30116b;
 }
+.dark .fc {
+    color: #fff;
+}
+.dark .fc-toolbar-title,
+.dark .fc-col-header-cell-cushion,
+.dark .fc-daygrid-day-number {
+    color: #fff !important;
+}
+
+#darkToggle {
+    background: #fff;
+}
+#darkToggle:hover {
+    background: #d1d5db
+}
