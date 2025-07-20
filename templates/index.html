@@ -11,7 +11,7 @@
 <body class="bg-purple-100 flex flex-col items-center min-h-screen p-4">
 <nav class="navbar">
   <div class="navbar-container">
-   <a href="/" class="navbar-logo">TaskFusion</a>
+    <a href="/" class="navbar-logo">TaskFusion</a>
     <button class="navbar-toggle" id="mobile-menu">
       <span class="bar"></span>
       <span class="bar"></span>
@@ -25,10 +25,13 @@
         <li class="navbar-account">
           <a href="#">Account &#9662;</a>
           <ul class="dropdown">
-            <li><a href="/account">My Account</a></li>
-            <li><a href="/login">Login</a></li>
-            <li><a href="/signup">Sign Up</a></li>
-            <li><a href="/logout">Logout</a></li>
+            {% if user %}
+                <li><a href="/account">My Account</a></li>
+                <li><a href="/logout">Logout</a></li>
+            {% else %}
+                <li><a href="/login">Login</a></li>
+                <li><a href="/signup">Sign Up</a></li>
+            {% endif %}
           </ul>
         </li>
       </ul>

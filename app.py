@@ -19,6 +19,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
 
 
+
+
 # Set UPLOAD_FOLDER as an absolute path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads', 'avatars')
@@ -34,6 +36,14 @@ def allowed_file(filename):
 
 CORS(app)
 db = SQLAlchemy(app)
+
+@app.context_processor
+def inject_user():
+    user = None
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+    return dict(user=user)
+
 
 # API endpoint to fetch a random quote
 @app.route('/api/quote')

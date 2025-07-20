@@ -27,12 +27,15 @@
                 <li><a href="/statistics">Statistics</a></li>
                 <li class="navbar-account">
                     <a href="#">Account &#9662;</a>
-                    <ul class="dropdown">
-                        <li><a href="/account">My Account</a></li>
+                   <ul class="dropdown">
+                       <li><a href="/account">My Account</a></li>
+                    {% if user %}
+                        <li><a href="/logout">Logout</a></li>
+                    {% else %}
                         <li><a href="/login">Login</a></li>
                         <li><a href="/signup">Sign Up</a></li>
-                        <li><a href="/logout">Logout</a></li>
-                    </ul>
+                    {% endif %}
+                   </ul>
                 </li>
             </ul>
         </div>
