@@ -61,8 +61,8 @@ class User(db.Model):
     username = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    avatar_url = db.Column(db.String(200))  # Add this field
-    tasks = db.relationship('Task', backref='user', lazy=True)
+    avatar_url = db.Column(db.String(200))
+    tasks = db.relationship('Task', backref='user', lazy=True, cascade="all, delete-orphan")
 
 
 # Task model
